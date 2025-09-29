@@ -28,6 +28,15 @@ pipeline {
             }
         }
 
+
+        stage('Install Test Dependencies') {
+    steps {
+        echo 'Installing Vitest and coverage plugin'
+        bat 'npm install --save-dev vitest @vitest/coverage-v8'
+    }
+}
+
+        
         stage('Test') {
             steps {
                 echo 'Running automated tests'
