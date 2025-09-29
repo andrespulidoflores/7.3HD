@@ -12,7 +12,7 @@ pipeline {
     steps {
         echo 'Building the application'
         bat 'npm install'
-        bat 'npx vite build'
+        bat 'npm run build'
     }
 }
 
