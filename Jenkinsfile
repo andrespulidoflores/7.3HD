@@ -72,10 +72,20 @@ pipeline {
 }
 
         stage('Deploy') {
-            steps {
-                echo 'Deploy placeholder'
-            }
-        }
+    steps {
+        echo 'Deploying application to test environment'
+
+        // Build Docker image
+        sh 'docker build -t my-vite-project:latest .'
+
+        // Optionally stop/remove existing container
+        sh 'docker rm -f vite-test || true'
+
+        // Run container
+        sh 'docker run -d -p 8080:80 --name vite-test my-vite-project:latest'
+    }
+}
+
         stage('Release') {
             steps {
                 echo 'Release placeholder'
