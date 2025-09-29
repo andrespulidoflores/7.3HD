@@ -8,12 +8,13 @@ pipeline {
     stages {
 
         stage('Build') {
-            steps {
-                echo 'Building the application'
-                bat 'npm install'
-                bat 'npm run build'
-            }
-        }
+    steps {
+        echo 'Building the application'
+        bat 'npm install'
+        bat 'npx vite build'
+    }
+}
+
 
         stage('Test') {
             steps {
