@@ -42,11 +42,23 @@ pipeline {
     }
 }
 
-        stage('Code Quality') {
-            steps {
-                echo 'Code Quality placeholder'
-            }
+       stage('Code Quality') {
+    steps {
+        echo 'Running SonarQube analysis'
+
+        // Use the Jenkins SonarQube plugin to scan
+        withSonarQubeEnv('MySonarQube') {
+            // If using npm sonar-scanner package
+            sh 'npx sonar-scanner \
+                -Dsonar.projectKey=my-vite-project \
+                -Dsonar.projectName="My Vite Project" \
+                -Dsonar.sources=src \
+                -Dsonar.host.url=$SONAR_HOST_URL \
+                -Dsonar.login=$SONAR_AUTH_TOKEN'
         }
+    }
+}
+
         stage('Security') {
             steps {
                 echo 'Security placeholder'
