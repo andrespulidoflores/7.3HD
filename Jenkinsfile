@@ -7,21 +7,32 @@ pipeline {
 
     stages {
 
-      stage('Build') {
-    steps {
-        echo 'Building the application'
-        bat 'npm ci'
-        bat 'rmdir /s /q node_modules\\.vite-temp || exit 0'
-        bat 'npm exec vite build'
-    }
-}
+        stage('Checkout') {
+            steps {
+                echo 'Checking out source code'
+                checkout scm
+            }
+        }
 
+        stage('Build') {
+            steps {
+                echo 'Installing dependencies and building application'
 
+                // Clean install
+                bat 'npm ci'
+
+                // Remove any lingering .vite-temp folder
+                bat 'rmdir /s /q node_modules\\.vite-temp || exit 0'
+
+                // Build using globally installed Vite
+                bat 'vite build'
+            }
+        }
 
         stage('Test') {
             steps {
                 echo 'Running automated tests'
-                // Make sure Vitest is installed
+                // Install Vitest locally if missing
                 bat 'npm install --save-dev vitest'
                 // Run tests
                 bat 'npx vitest run'
@@ -46,7 +57,7 @@ pipeline {
 
         stage('Security') {
             steps {
-                echo 'Running security analysis'
+                echo 'Running security audit'
                 bat 'npm audit --audit-level=moderate'
             }
         }
