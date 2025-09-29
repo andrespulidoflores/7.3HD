@@ -7,22 +7,20 @@ pipeline {
 
     stages {
 
-        stage('Build') {
+       stage('Build') {
     steps {
         echo 'Building the application'
         bat 'npm ci'
-        bat 'npx run build'
+        bat 'npx vite build'
     }
 }
 
-
-        stage('Test') {
-            steps {
-                echo 'Running automated tests'
-                bat 'npm install --save-dev vitest'
-                bat 'npx vitex run'
-            }
-        }
+stage('Test') {
+    steps {
+        echo 'Running automated tests'
+        bat 'npx vitest run'
+    }
+}
 
         stage('Code Quality') {
             steps {
