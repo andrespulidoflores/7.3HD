@@ -11,7 +11,7 @@ pipeline {
     steps {
         echo 'Building the application'
         bat 'npm ci'
-        bat 'npm run build'
+        bat 'npx run build'
     }
 }
 
