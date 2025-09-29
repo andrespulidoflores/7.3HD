@@ -1,100 +1,92 @@
 pipeline {
     agent any
 
-    tools {
-        nodejs 'Node13'
+    environment {
+        NODE_ENV = 'production'
     }
 
     stages {
+
         stage('Build') {
-    steps {
-        echo 'Installing dependencies and building project'
-        sh 'npm install'
-        sh 'npm run build'
-
-        // Optional: archive build artefact
-        archiveArtifacts artifacts: 'dist/**', fingerprint: true
-
-        // Optional: build Docker image
-        sh 'docker build -t my-vue-app:latest .'
-    }
-}
+            steps {
+                echo 'Building the application'
+                sh 'npm install'
+                sh 'npm run build'
+            }
+        }
 
         stage('Test') {
-    steps {
-        echo 'Running unit tests'
-        
-        // Ensure dependencies are installed
-        sh 'npm install'
-        
-        // Run unit tests
-        sh 'npm run test'  // assumes test script is configured in package.json
-
-        // Optional: run e2e tests with Cypress
-        // sh 'npx cypress run'
-    }
-    
-    post {
-        always {
-            // Archive test results for Jenkins reports
-            junit 'tests/results/**/*.xml'  // if Jest/Cypress outputs JUnit XML
+            steps {
+                echo 'Running automated tests'
+                sh 'npm install -D vitest'
+                sh 'npx vitest run'
+            }
         }
-    }
-}
 
-       stage('Code Quality') {
-    steps {
-        echo 'Running SonarQube analysis'
-
-        // Use the Jenkins SonarQube plugin to scan
-        withSonarQubeEnv('MySonarQube') {
-            // If using npm sonar-scanner package
-            sh 'npx sonar-scanner \
-                -Dsonar.projectKey=my-vite-project \
-                -Dsonar.projectName="My Vite Project" \
-                -Dsonar.sources=src \
-                -Dsonar.host.url=$SONAR_HOST_URL \
-                -Dsonar.login=$SONAR_AUTH_TOKEN'
+        stage('Code Quality') {
+            steps {
+                echo 'Running SonarQube analysis'
+                withSonarQubeEnv('MySonarQube') {
+                    sh 'npx sonar-scanner \
+                        -Dsonar.projectKey=my-vite-project \
+                        -Dsonar.projectName="My Vite Project" \
+                        -Dsonar.sources=src \
+                        -Dsonar.host.url=$SONAR_HOST_URL \
+                        -Dsonar.login=$SONAR_AUTH_TOKEN'
+                }
+            }
         }
-    }
-}
 
         stage('Security') {
-    steps {
-        echo 'Running security analysis'
-
-        // Install dependencies (if not already)
-        sh 'npm install'
-
-        // Run npm audit
-        sh 'npm audit --audit-level=moderate'
-    }
-}
+            steps {
+                echo 'Running security analysis'
+                sh 'npm install'
+                sh 'npm audit --audit-level=moderate'
+            }
+        }
 
         stage('Deploy') {
-    steps {
-        echo 'Deploying application to test environment'
-
-        // Build Docker image
-        sh 'docker build -t my-vite-project:latest .'
-
-        // Optionally stop/remove existing container
-        sh 'docker rm -f vite-test || true'
-
-        // Run container
-        sh 'docker run -d -p 8080:80 --name vite-test my-vite-project:latest'
-    }
-}
+            steps {
+                echo 'Deploying application to test environment'
+                sh 'docker build -t my-vite-project:latest .'
+                sh 'docker rm -f vite-test || true'
+                sh 'docker run -d -p 8080:80 --name vite-test my-vite-project:latest'
+            }
+        }
 
         stage('Release') {
             steps {
-                echo 'Release placeholder'
+                echo 'Promoting application to production'
+                sh 'docker rm -f vite-prod || true'
+                sh 'docker run -d -p 80:80 --name vite-prod my-vite-project:latest'
             }
         }
-        stage('Monitoring') {
+
+        stage('Monitoring & Alerting') {
             steps {
-                echo 'Monitoring placeholder'
+                echo 'Monitoring application health'
+                script {
+                    def response = sh(script: 'curl -s -o /dev/null -w "%{http_code}" http://localhost', returnStdout: true).trim()
+                    if (response != '200') {
+                        error "Application is down! HTTP response: ${response}"
+                    }
+                }
             }
+            post {
+                failure {
+                    echo 'Sending alert email to Andres'
+                    mail to: 'andrespulido019@gmail.com',
+                         subject: "Production Alert: Vite App is Down",
+                         body: "The production application failed the health check. Please investigate immediately."
+                }
+            }
+        }
+
+    }
+
+    post {
+        always {
+            echo 'Pipeline completed'
         }
     }
 }
