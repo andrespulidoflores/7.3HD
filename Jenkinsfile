@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         NODE_ENV = 'production'
-        SONAR_TOKEN = credentials('sonar-token-id') // replace with your SonarQube token credential ID
+        SONAR_TOKEN = credentials('MySonarQubeToken')
     }
 
     stages {
