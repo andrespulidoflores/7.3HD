@@ -15,19 +15,13 @@ pipeline {
         }
 
         stage('Build') {
-            steps {
-                echo 'Installing dependencies and building application'
+    steps {
+        echo 'Installing dependencies and building application'
+        bat 'npm ci'
+        bat 'npm run build'
+    }
+}
 
-                // Clean install
-                bat 'npm ci'
-
-                // Remove any lingering .vite-temp folder
-                bat 'rmdir /s /q node_modules\\.vite-temp || exit 0'
-
-                // Build using globally installed Vite
-                bat 'vite build'
-            }
-        }
 
         stage('Test') {
             steps {
