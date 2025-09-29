@@ -24,15 +24,29 @@ pipeline {
             }
         }
 
-        stage('Test') {
+       stage('Test') {
             steps {
-                echo 'Skipping tests for now'
+                echo 'Running automated tests'
+                // Install Vitest locally if missing
+                bat 'npm install --save-dev vitest'
+                // Run tests
+                bat 'npx vitest run'
             }
         }
 
-        stage('Code Quality') {
+       stage('Code Quality') {
             steps {
-                echo 'Skipping code quality for now'
+                echo 'Running SonarQube analysis'
+                withSonarQubeEnv('MySonarQube') {
+                    bat """
+                    npx sonar-scanner ^
+                        -Dsonar.projectKey=my-vite-project ^
+                        -Dsonar.projectName="My Vite Project" ^
+                        -Dsonar.sources=src ^
+                        -Dsonar.host.url=%SONAR_HOST_URL% ^
+                        -Dsonar.login=%SONAR_AUTH_TOKEN%
+                    """
+                }
             }
         }
 
@@ -61,3 +75,5 @@ pipeline {
         }
     }
 }
+
+
