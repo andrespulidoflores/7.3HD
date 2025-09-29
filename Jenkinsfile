@@ -7,15 +7,16 @@ pipeline {
 
     stages {
 
-        stage('Build') {
-            steps {
-                echo 'Building the application'
-                // Install all dependencies cleanly
-                bat 'npm ci'
-                // Build the Vite project
-                bat 'npx vite build'
-            }
-        }
+       stage('Build') {
+    steps {
+        echo 'Building the application'
+        // Clean install dependencies
+        bat 'npm ci'
+        // Build using local Vite via npx
+        bat 'npx --yes vite build'
+    }
+}
+
 
         stage('Test') {
             steps {
