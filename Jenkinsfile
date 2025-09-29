@@ -7,20 +7,25 @@ pipeline {
 
     stages {
 
-       stage('Build') {
-    steps {
-        echo 'Building the application'
-        bat 'npm ci'
-        bat 'npx vite build'
-    }
-}
+        stage('Build') {
+            steps {
+                echo 'Building the application'
+                // Install all dependencies cleanly
+                bat 'npm ci'
+                // Build the Vite project
+                bat 'npx vite build'
+            }
+        }
 
-stage('Test') {
-    steps {
-        echo 'Running automated tests'
-        bat 'npx vitest run'
-    }
-}
+        stage('Test') {
+            steps {
+                echo 'Running automated tests'
+                // Make sure Vitest is installed
+                bat 'npm install --save-dev vitest'
+                // Run tests
+                bat 'npx vitest run'
+            }
+        }
 
         stage('Code Quality') {
             steps {
@@ -41,7 +46,6 @@ stage('Test') {
         stage('Security') {
             steps {
                 echo 'Running security analysis'
-                bat 'npm install'
                 bat 'npm audit --audit-level=moderate'
             }
         }
