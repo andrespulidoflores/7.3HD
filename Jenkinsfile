@@ -17,7 +17,15 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Installing dependencies and building application'
+
+                // Remove old node_modules and .vite-temp to avoid Windows file lock issues
+                bat 'rmdir /s /q node_modules || echo "no node_modules to remove"'
+                bat 'rmdir /s /q .vite-temp || echo "no .vite-temp to remove"'
+
+                // Install dependencies fresh
                 bat 'npm ci'
+
+                // Build Vite project
                 bat 'npm run build'
             }
         }
@@ -25,10 +33,10 @@ pipeline {
         stage('Test') {
             steps {
                 echo 'Running automated tests'
-                // Install Vitest locally if missing
-                bat 'npm install --no-save vitest || echo "Vitest already installed"'
+                // Install Vitest if not installed
+                bat 'npm install --save-dev vitest'
                 // Run tests
-                bat 'npx vitest run || echo "No tests configured"'
+                bat 'npx vitest run'
             }
         }
 
@@ -59,7 +67,7 @@ pipeline {
             steps {
                 echo 'Deploying application to test environment'
                 bat 'docker build -t my-vite-project:latest .'
-                bat 'docker rm -f vite-test || exit 0'
+                bat 'docker rm -f vite-test || echo "no previous container"'
                 bat 'docker run -d -p 8080:80 --name vite-test my-vite-project:latest'
             }
         }
@@ -67,7 +75,7 @@ pipeline {
         stage('Release') {
             steps {
                 echo 'Promoting application to production'
-                bat 'docker rm -f vite-prod || exit 0'
+                bat 'docker rm -f vite-prod || echo "no previous container"'
                 bat 'docker run -d -p 80:80 --name vite-prod my-vite-project:latest'
             }
         }
@@ -76,7 +84,7 @@ pipeline {
             steps {
                 echo 'Monitoring application health'
                 script {
-                    def response = bat(script: 'curl -s -o NUL -w "%{http_code}" http://localhost:8080', returnStdout: true).trim()
+                    def response = bat(script: 'curl -s -o NUL -w "%{http_code}" http://localhost', returnStdout: true).trim()
                     if (response != '200') {
                         error "Application is down! HTTP response: ${response}"
                     }
