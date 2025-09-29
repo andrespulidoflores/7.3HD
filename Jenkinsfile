@@ -60,10 +60,17 @@ pipeline {
 }
 
         stage('Security') {
-            steps {
-                echo 'Security placeholder'
-            }
-        }
+    steps {
+        echo 'Running security analysis'
+
+        // Install dependencies (if not already)
+        sh 'npm install'
+
+        // Run npm audit
+        sh 'npm audit --audit-level=moderate'
+    }
+}
+
         stage('Deploy') {
             steps {
                 echo 'Deploy placeholder'
