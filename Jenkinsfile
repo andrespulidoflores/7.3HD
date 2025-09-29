@@ -7,10 +7,19 @@ pipeline {
 
     stages {
         stage('Build') {
-            steps {
-                echo 'Build stage placeholder'
-            }
-        }
+    steps {
+        echo 'Installing dependencies and building project'
+        sh 'npm install'
+        sh 'npm run build'
+
+        // Optional: archive build artefact
+        archiveArtifacts artifacts: 'dist/**', fingerprint: true
+
+        // Optional: build Docker image
+        sh 'docker build -t my-vue-app:latest .'
+    }
+}
+
         stage('Test') {
             steps {
                 echo 'Test stage placeholder'
