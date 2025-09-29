@@ -17,17 +17,19 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Installing dependencies and building application'
-                bat 'rmdir /s /q node_modules || echo "no node_modules to remove"'
-                bat 'rmdir /s /q .vite-temp || echo ".vite-temp removal skipped"'
+                // Install dependencies
                 bat 'npm ci'
-                bat 'npm run build'
+                // Build Vite project
+                bat 'npx vite build'
             }
         }
 
         stage('Test') {
             steps {
                 echo 'Running automated tests'
+                // Install Vitest locally if missing
                 bat 'npm install --save-dev vitest'
+                // Run tests
                 bat 'npx vitest run'
             }
         }
