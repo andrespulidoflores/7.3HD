@@ -21,10 +21,27 @@ pipeline {
 }
 
         stage('Test') {
-            steps {
-                echo 'Test stage placeholder'
-            }
+    steps {
+        echo 'Running unit tests'
+        
+        // Ensure dependencies are installed
+        sh 'npm install'
+        
+        // Run unit tests
+        sh 'npm run test'  // assumes test script is configured in package.json
+
+        // Optional: run e2e tests with Cypress
+        // sh 'npx cypress run'
+    }
+    
+    post {
+        always {
+            // Archive test results for Jenkins reports
+            junit 'tests/results/**/*.xml'  // if Jest/Cypress outputs JUnit XML
         }
+    }
+}
+
         stage('Code Quality') {
             steps {
                 echo 'Code Quality placeholder'
