@@ -18,7 +18,7 @@ pipeline {
     steps {
         echo 'Installing dependencies and building application'
         bat 'npm ci'
-        bat '.\\node_modules\\.bin\\vite.cmd build'
+        bat 'npx vite build'
     }
 }
 
