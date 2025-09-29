@@ -14,15 +14,13 @@ pipeline {
             }
         }
 
-        stage('Build') {
-            steps {
-                echo 'Installing dependencies and building application'
-                // Install dependencies
-                bat 'npm ci'
-                // Build Vite project
-                bat 'npx vite build'
-            }
-        }
+       stage('Build') {
+    steps {
+        echo 'Installing dependencies and building application'
+        bat 'npm ci'
+        bat '.\\node_modules\\.bin\\vite build'
+    }
+}
 
         stage('Test') {
             steps {
