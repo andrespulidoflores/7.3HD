@@ -18,14 +18,13 @@ pipeline {
             steps {
                 echo 'Installing dependencies and building application'
 
-                // Remove old node_modules and .vite-temp to avoid Windows file lock issues
-                bat 'rmdir /s /q node_modules || echo "no node_modules to remove"'
-                bat 'rmdir /s /q .vite-temp || echo "no .vite-temp to remove"'
+                // Optional cleanup of .vite-temp
+                bat 'rmdir /s /q .vite-temp || echo ".vite-temp removal skipped"'
 
-                // Install dependencies fresh
+                // Clean install of node_modules
                 bat 'npm ci'
 
-                // Build Vite project
+                // Build using Vite
                 bat 'npm run build'
             }
         }
@@ -33,7 +32,7 @@ pipeline {
         stage('Test') {
             steps {
                 echo 'Running automated tests'
-                // Install Vitest if not installed
+                // Install Vitest locally if missing
                 bat 'npm install --save-dev vitest'
                 // Run tests
                 bat 'npx vitest run'
@@ -67,7 +66,7 @@ pipeline {
             steps {
                 echo 'Deploying application to test environment'
                 bat 'docker build -t my-vite-project:latest .'
-                bat 'docker rm -f vite-test || echo "no previous container"'
+                bat 'docker rm -f vite-test || echo "no existing test container"'
                 bat 'docker run -d -p 8080:80 --name vite-test my-vite-project:latest'
             }
         }
@@ -75,7 +74,7 @@ pipeline {
         stage('Release') {
             steps {
                 echo 'Promoting application to production'
-                bat 'docker rm -f vite-prod || echo "no previous container"'
+                bat 'docker rm -f vite-prod || echo "no existing prod container"'
                 bat 'docker run -d -p 80:80 --name vite-prod my-vite-project:latest'
             }
         }
