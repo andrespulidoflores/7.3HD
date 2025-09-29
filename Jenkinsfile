@@ -3,24 +3,23 @@ pipeline {
 
     environment {
         NODE_ENV = 'production'
-        SONAR_TOKEN = credentials('MySonarQubeToken')
     }
 
     stages {
 
-       stage('Build') {
-    steps {
-        echo 'Building the application'
-        bat 'npm install'
-        bat 'npm run build'
-    }
-}
+        stage('Build') {
+            steps {
+                echo 'Building the application'
+                bat 'npm install'
+                bat 'npm run build'
+            }
+        }
 
         stage('Test') {
             steps {
                 echo 'Running automated tests'
-                bat 'npm install -D vitest'
-                bat 'npx vitest run'
+                bat 'npm install --save-dev vitest'
+                bat 'npm run test'
             }
         }
 
@@ -34,7 +33,7 @@ pipeline {
                         -Dsonar.projectName="My Vite Project" ^
                         -Dsonar.sources=src ^
                         -Dsonar.host.url=%SONAR_HOST_URL% ^
-                        -Dsonar.login=%SONAR_TOKEN%
+                        -Dsonar.login=%SONAR_AUTH_TOKEN%
                     """
                 }
             }
@@ -84,7 +83,6 @@ pipeline {
                 }
             }
         }
-
     }
 
     post {
