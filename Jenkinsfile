@@ -15,19 +15,20 @@ pipeline {
         }
 
         stage('Build') {
-            steps {
-                echo 'Installing dependencies and building application'
+    steps {
+        echo 'Installing dependencies and building application'
 
-                // Optional cleanup of .vite-temp
-                bat 'rmdir /s /q .vite-temp || echo ".vite-temp removal skipped"'
+        // Optional cleanup of .vite-temp
+        bat 'rmdir /s /q .vite-temp || echo ".vite-temp removal skipped"'
 
-                // Clean install of node_modules
-                bat 'npm ci'
+        // Install dependencies
+        bat 'npm ci'
 
-                // Build using Vite
-                bat 'npm run build'
-            }
-        }
+        // Build the project
+        bat 'npm run build'
+    }
+}
+
 
         stage('Test') {
             steps {
