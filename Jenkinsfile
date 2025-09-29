@@ -20,7 +20,7 @@ pipeline {
             steps {
                 echo 'Running automated tests'
                 bat 'npm install --save-dev vitest'
-                bat 'npm run test'
+                bat 'npx vitex run'
             }
         }
 
